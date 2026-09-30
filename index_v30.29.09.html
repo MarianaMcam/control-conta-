@@ -1,0 +1,2169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Despacho Contable - Control de Clientes · Versión 27</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f6f8;
+            color: #1f2937;
+        }
+
+        .header {
+            background: #1f4e78;
+            color: white;
+            padding: 24px 32px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1500px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .card-header h2 {
+            font-size: 20px;
+            color: #111827;
+        }
+
+        .menu-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .menu-subtitle {
+            margin-top: 4px;
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .btn-nuevo {
+            border: none;
+            background: #17663d;
+            color: white;
+            padding: 11px 16px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .btn-nuevo:hover {
+            background: #125230;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1100px;
+        }
+
+        th,
+        td {
+            padding: 15px 18px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: top;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #374151;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        td {
+            font-size: 14px;
+            color: #4b5563;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        
+        .dato-expandible {
+            max-width: 180px;
+            font-size: 12px;
+        }
+
+        .dato-expandible summary {
+            cursor: pointer;
+            color: #173a5e;
+            font-weight: 600;
+            list-style: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dato-expandible summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .dato-expandible summary::before {
+            content: '▸';
+            font-size: 11px;
+            transition: transform .15s ease;
+        }
+
+        .dato-expandible[open] summary::before {
+            transform: rotate(90deg);
+        }
+
+        .dato-resumen {
+            display: inline-block;
+            max-width: 145px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: bottom;
+        }
+
+        .dato-detalle {
+            margin-top: 8px;
+            padding: 9px 10px;
+            border-left: 3px solid #0f766e;
+            background: #f6faf9;
+            border-radius: 0 7px 7px 0;
+            line-height: 1.45;
+            color: #475569;
+            white-space: normal;
+        }
+
+        .cp-compact {
+            font-weight: 700;
+            color: #173a5e;
+        }
+
+        .cp-detalle {
+            color: #64748b;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+.rfc {
+            font-weight: bold;
+            color: #1f4e78;
+        }
+
+        .obligaciones {
+            line-height: 1.7;
+        }
+
+        .obligacion {
+            display: inline-block;
+            background: #eef4f8;
+            color: #1f4e78;
+            padding: 4px 8px;
+            border-radius: 5px;
+            margin: 2px 3px 2px 0;
+            font-size: 12px;
+        }
+
+        .sin-obligaciones {
+            color: #9ca3af;
+            font-style: italic;
+        }
+
+        .checklist-obligaciones {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 260px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 5px 7px;
+            border-radius: 5px;
+            background: #f8fafc;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .checklist-item:hover {
+            background: #eef4f8;
+        }
+
+        .checklist-item input {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #1f4e78;
+        }
+
+        .checklist-item .hecha {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #17663d;
+            font-size: 11px;
+        }
+
+        .checklist-item.completa {
+            background: #e9f7ef;
+        }
+
+        .checklist-item.completa > span.nombre {
+            text-decoration: line-through;
+            color: #17663d;
+        }
+
+        .btn-editar {
+            border: none;
+            background: #1f4e78;
+            color: white;
+            padding: 9px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .btn-editar:hover {
+            background: #163a5c;
+        }
+
+        .btn-borrar {
+            border: none;
+            background: #b42318;
+            color: white;
+            padding: 9px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .btn-borrar:hover {
+            background: #8f1c13;
+        }
+
+        .acciones {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .campo {
+            margin-bottom: 15px;
+        }
+
+        .campo label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #374151;
+        }
+
+        .campo input {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .campo select {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 25px;
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        /* Ventana de edición */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal.activo {
+            display: flex;
+        }
+
+        .modal-contenido {
+            width: min(100%, 550px);
+            max-width: 550px;
+            height: min(calc(100vh - 40px), calc(100dvh - 40px));
+            max-height: min(calc(100vh - 40px), calc(100dvh - 40px));
+            min-height: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            margin: auto;
+        }
+
+        .modal-contenido form {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: #1f4e78;
+            color: white;
+            padding: 18px 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 19px;
+        }
+
+        .cerrar {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 26px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .modal-body {
+            padding: 22px;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+            min-height: 0;
+            flex: 1 1 auto;
+            scrollbar-gutter: stable;
+            touch-action: pan-y;
+        }
+
+        .cliente-info {
+            background: #f8fafc;
+            border-radius: 7px;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .cliente-info strong {
+            color: #1f4e78;
+        }
+
+        .modal-body h4 {
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .obligacion-opcion {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .obligacion-opcion:hover {
+            background: #f8fafc;
+        }
+
+        .obligacion-opcion input {
+            width: 17px;
+            height: 17px;
+            cursor: pointer;
+        }
+
+        .estado-hecha {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #4b5563;
+            white-space: nowrap;
+        }
+
+        .estado-hecha input {
+            accent-color: #1f7a4c;
+        }
+
+        .obligacion.completa {
+            background: #e9f7ef;
+            color: #17663d;
+            text-decoration: line-through;
+        }
+
+        .progreso-obligaciones {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .modal-footer {
+            padding: 16px 22px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            flex: 0 0 auto;
+            background: white;
+        }
+
+        .btn-cancelar,
+        .btn-guardar {
+            border: none;
+            padding: 10px 17px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-cancelar {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .btn-guardar {
+            background: #1f4e78;
+            color: white;
+        }
+
+        .btn-guardar:hover {
+            background: #163a5c;
+        }
+
+        .constancia-box {
+            border: 2px dashed #8aa0b8;
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 18px;
+        }
+
+        .constancia-box h4 {
+            color: #1f4e78;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .constancia-box p {
+            color: #6b7280;
+            font-size: 12px;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .constancia-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            background: white;
+            font-size: 13px;
+        }
+
+        .constancia-status {
+            margin-top: 9px;
+            font-size: 12px;
+            color: #4b5563;
+            min-height: 18px;
+        }
+
+        .constancia-status.ok {
+            color: #17663d;
+        }
+
+        .constancia-status.error {
+            color: #b42318;
+        }
+
+        .btn-constancia {
+            margin-top: 9px;
+            border: none;
+            background: #1f4e78;
+            color: white;
+            padding: 9px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-constancia:hover {
+            background: #163a5c;
+        }
+
+        .login-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: #f4f6f8;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.10);
+            padding: 28px;
+        }
+
+        .login-card h2 {
+            margin-bottom: 8px;
+            color: #1f4e78;
+        }
+
+        .login-card p {
+            margin-bottom: 20px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .login-card input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .login-card button {
+            width: 100%;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            background: #1f4e78;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .login-card button:hover {
+            background: #163a5c;
+        }
+
+        .login-error {
+            margin-top: 12px;
+            color: #b42318;
+            font-size: 13px;
+            min-height: 18px;
+        }
+
+        .btn-salir {
+            float: right;
+            margin-top: -6px;
+            border: none;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        #modalNuevoCliente .modal-contenido {
+            max-height: calc(100vh - 32px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        #modalNuevoCliente .modal-header,
+        #modalNuevoCliente .modal-footer {
+            flex: 0 0 auto;
+        }
+
+        #modalNuevoCliente .modal-body {
+            min-height: 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+        }
+
+        @media (max-width: 700px) {
+            .header {
+                padding: 20px;
+            }
+
+            .modal {
+                align-items: flex-start;
+                padding: 10px;
+            }
+
+            .modal-contenido {
+                width: 100%;
+                height: calc(100vh - 20px);
+                height: calc(100dvh - 20px);
+                max-height: calc(100vh - 20px);
+                max-height: calc(100dvh - 20px);
+                border-radius: 10px;
+                margin: 0 auto;
+            }
+
+            .modal-body {
+                overflow-y: scroll;
+                overscroll-behavior: contain;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .modal-header,
+            .modal-body,
+            .modal-footer {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .modal-footer {
+                flex-direction: column-reverse;
+            }
+
+            .modal-footer button {
+                width: 100%;
+            }
+
+            .header h1 {
+                font-size: 23px;
+            }
+
+            .container {
+                margin-top: 20px;
+                padding: 0 12px;
+            }
+        }
+    
+/* FILTROS HORIZONTALES - DESPACHO CONTABLE */
+.filtros-card{margin:0 0 18px;padding:16px 18px;background:linear-gradient(135deg,#ffffff,#f7fafb);border:1px solid #dbe4e9;border-radius:14px;box-shadow:0 8px 24px rgba(15,39,66,.06)}
+.filtros-grid{display:flex;align-items:flex-end;gap:12px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px}
+.filtro-campo{flex:1 1 210px;min-width:190px}
+.filtro-campo:first-child{flex:1.7 1 360px}
+.filtro-campo label{display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:#536273;margin:0 0 6px 2px}
+.filtro-campo input,.filtro-campo select{width:100%;height:42px;border:1px solid #cbd7df;border-radius:9px;background:#fff;padding:0 12px;font-size:13px;color:#24364a;outline:none;transition:.18s;box-shadow:0 1px 2px rgba(15,39,66,.03)}
+.filtro-campo input:focus,.filtro-campo select:focus{border-color:#0f766e;box-shadow:0 0 0 3px rgba(15,118,110,.10)}
+#btnLimpiarFiltros{height:42px;flex:0 0 auto;white-space:nowrap;border:1px solid #cfd9df;background:#eef3f6;color:#173a5e;border-radius:9px;padding:0 15px;font-size:13px;font-weight:800;cursor:pointer}
+#btnLimpiarFiltros:hover{background:#e2ebef}
+.busqueda-inteligente{margin-top:11px;padding-top:10px;border-top:1px dashed #d6e0e6;color:#718096;font-size:12px}
+.filtro-resultados{float:right;color:#0f766e;font-weight:800}
+@media(max-width:900px){.filtros-grid{gap:10px}.filtro-campo{min-width:180px}.filtro-campo:first-child{min-width:280px}.filtro-resultados{float:none;display:inline-block;margin-left:8px}}
+@media(max-width:700px){.filtros-card{padding:13px}.filtros-grid{flex-wrap:nowrap}.filtro-campo{min-width:170px}.filtro-campo:first-child{min-width:250px}}
+
+/* IDENTIDAD VISUAL - DESPACHO CONTABLE */
+:root{
+  --navy:#0f2742;
+  --navy-2:#173a5e;
+  --emerald:#0f766e;
+  --emerald-dark:#0b5f59;
+  --gold:#c59b43;
+  --cream:#f7f4ec;
+  --paper:#fffdf8;
+  --ink:#223046;
+  --muted:#6b7787;
+  --line:#dde4ea;
+  --danger:#b42318;
+}
+body{font-family:"Aptos","Segoe UI",Arial,sans-serif;background:linear-gradient(180deg,#f4f6f8 0%,#eef2f5 100%);color:var(--ink)}
+.header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 58%,#1d4f70 100%);padding:28px 32px;position:relative;overflow:hidden;box-shadow:0 8px 26px rgba(15,39,66,.18)}
+.header::after{content:"";position:absolute;right:-40px;top:-80px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(197,155,67,.26),rgba(197,155,67,0) 68%)}
+.header::before{content:"";position:absolute;right:110px;bottom:-75px;width:190px;height:190px;border-radius:40px;transform:rotate(18deg);background:rgba(15,118,110,.16);border:1px solid rgba(255,255,255,.08)}
+.header h1,.header p{position:relative;z-index:1}
+.header h1{font-family:Georgia,"Times New Roman",serif;font-size:32px;letter-spacing:.2px}
+.header p{font-size:14px;color:#d8e4ef}
+.container{max-width:1500px;margin:28px auto;padding:0 20px}
+.card{background:rgba(255,255,255,.95);border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 34px rgba(15,39,66,.08)}
+.card-header{padding:20px 24px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#ffffff 0%,#fbfcfd 100%)}
+.card-header h2{font-family:Georgia,"Times New Roman",serif;color:var(--navy);font-size:21px}
+.menu-subtitle{color:var(--muted);font-size:13px}
+.btn-nuevo{background:linear-gradient(135deg,var(--emerald),#159a8e);box-shadow:0 5px 14px rgba(15,118,110,.22);padding:11px 17px;border-radius:9px}
+.btn-nuevo:hover{background:linear-gradient(135deg,var(--emerald-dark),#117e75)}
+th{background:#edf3f6;color:var(--navy);font-weight:700;letter-spacing:.5px;border-bottom:1px solid var(--line)}
+td{color:#475569;border-bottom:1px solid #e8edf1}
+tbody tr:hover{background:#f8fbfc}
+.rfc{color:var(--navy)}
+.checklist-item{background:#f7fafb;border:1px solid #edf1f4;border-radius:7px}
+.checklist-item:hover{background:#eef7f6}
+.checklist-item input{accent-color:var(--emerald)}
+.checklist-item.completa{background:#e9f7f2;border-color:#cfe9e1}
+.checklist-item.completa > span.nombre{color:#17663d}
+.btn-editar{background:var(--navy-2);border-radius:8px;box-shadow:0 3px 8px rgba(23,58,94,.15)}
+.btn-editar:hover{background:#0f2e4b}
+.btn-borrar{background:var(--danger);border-radius:8px}
+.btn-borrar:hover{background:#8f1c13}
+.campo input,.campo select{border:1px solid #cfd8e1;border-radius:8px;background:#fff;transition:.2s;border-top-color:#c3cdd6}
+.campo input:focus,.campo select:focus{outline:none;border-color:var(--emerald);box-shadow:0 0 0 3px rgba(15,118,110,.11)}
+.modal{background:rgba(7,20,34,.66);backdrop-filter:blur(3px)}
+.modal-contenido{border:1px solid rgba(255,255,255,.45);border-radius:16px;box-shadow:0 24px 70px rgba(7,20,34,.28)}
+.modal-header{background:linear-gradient(135deg,var(--navy),var(--navy-2));padding:18px 22px}
+.modal-header h3{font-family:Georgia,"Times New Roman",serif}
+.btn-guardar{background:var(--emerald);border-radius:8px;box-shadow:0 4px 12px rgba(15,118,110,.2)}
+.btn-guardar:hover{background:var(--emerald-dark)}
+.btn-cancelar{border-radius:8px}
+.cliente-info,.constancia-box,.constancia-detectada{background:var(--cream);border:1px solid #eadfca;border-radius:10px}
+.constancia-box{padding:16px}
+.constancia-box h4{color:var(--navy);font-family:Georgia,"Times New Roman",serif}
+.constancia-box p{color:#5f6b78}
+.constancia-box .btn-constancia{background:var(--navy-2);color:#fff;border:none;border-radius:8px;padding:10px 14px;cursor:pointer}
+.constancia-box .btn-constancia:disabled{opacity:.45;cursor:not-allowed}
+.footer{color:#718096}
+.login-screen{background:radial-gradient(circle at 20% 20%,rgba(197,155,67,.12),transparent 30%),linear-gradient(135deg,#eef3f6,#f8f6ef)}
+.login-card{border:1px solid var(--line);box-shadow:0 18px 46px rgba(15,39,66,.12);border-radius:18px;position:relative;overflow:hidden}
+.login-card::before{content:"";display:block;height:6px;background:linear-gradient(90deg,var(--navy),var(--emerald),var(--gold));position:absolute;left:0;right:0;top:0}
+.login-card h2{font-family:Georgia,"Times New Roman",serif;color:var(--navy);font-size:28px;margin-top:8px}
+.login-card button{background:linear-gradient(135deg,var(--navy),var(--navy-2));border-radius:8px}
+.btn-salir{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.17)}
+.dashboard-visual{display:grid;grid-template-columns:1.35fr .65fr;gap:18px;margin-bottom:18px}
+.brand-panel,.metric-panel{border:1px solid var(--line);border-radius:16px;background:var(--paper);overflow:hidden}
+.brand-panel{padding:20px;position:relative;min-height:180px}
+.brand-panel h3{font-family:Georgia,"Times New Roman",serif;font-size:25px;color:var(--navy);margin-bottom:6px}
+.brand-panel p{color:var(--muted);max-width:610px;line-height:1.55}
+.accounting-art{position:absolute;right:18px;bottom:14px;width:220px;height:145px;opacity:.96}
+.metric-panel{padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.metric{padding:14px;border-radius:12px;background:#f4f8f8;border:1px solid #dbe9e7}
+.metric b{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px}
+.metric strong{display:block;margin-top:6px;font-size:24px;color:var(--navy)}
+.metric.accent{background:#fbf6ea;border-color:#eadfca}
+.metric.accent strong{color:#8b6a28}
+@media (max-width:900px){.dashboard-visual{grid-template-columns:1fr}.accounting-art{position:relative;right:auto;bottom:auto;width:180px;margin-left:auto;margin-top:12px}.brand-panel{min-height:0}}
+
+.obligaciones-filtro{margin-bottom:10px;padding:10px;border:1px solid #dce5e9;border-radius:10px;background:#f8fbfc}
+.obligaciones-filtro input{width:100%;padding:9px 11px;border:1px solid #cfd9df;border-radius:8px;font-size:13px;outline:none}
+.obligaciones-filtro input:focus{border-color:#0f766e;box-shadow:0 0 0 3px rgba(15,118,110,.10)}
+.obligacion-resumen{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.obligacion-resumen small{color:#64748b}
+.checklist-obligaciones{display:flex;flex-direction:column;gap:7px;min-width:285px}
+.obligacion-card{display:grid;grid-template-columns:20px 1fr auto;gap:8px;align-items:center;padding:8px 10px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.obligacion-card:hover{border-color:#b8cbd4;background:#f5faf9}
+.obligacion-card.pendiente{border-left:4px solid #c59b43}
+.obligacion-card.hecha{border-left:4px solid #0f766e;background:#eef8f5}
+.obligacion-card input{width:17px;height:17px}
+.obligacion-card .nombre{font-weight:700;color:#173a5e;line-height:1.25}
+.obligacion-card .meta{display:block;color:#64748b;font-size:10px;margin-top:2px}
+.obligacion-card .estado{font-size:10px;font-weight:700;padding:4px 7px;border-radius:999px;background:#fff7e5;color:#8b6a28;white-space:nowrap}
+.obligacion-card.hecha .estado{background:#dff5ec;color:#166534}
+.editar-obligaciones-lista{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:260px;overflow:auto;padding-right:4px}
+.editar-obligacion-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border:1px solid #e2e8f0;border-radius:9px;background:#fff;font-size:12px}
+.editar-obligacion-item.hidden{display:none}
+@media(max-width:700px){.editar-obligaciones-lista{grid-template-columns:1fr}.checklist-obligaciones{min-width:240px}}
+
+.obligaciones-editor{margin-top:12px;padding:16px;border:1px solid #d8e2e8;border-radius:12px;background:#f8fbfc}
+.obligaciones-editor-head h4{font-size:15px;color:#173a5e;margin-bottom:4px}
+.obligaciones-editor-head p{font-size:12px;color:#64748b;margin-bottom:12px}
+.editar-obligaciones-lista{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.editar-obligacion-item{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #dbe5ea;border-radius:9px;background:#fff}
+.editar-obligacion-item input{width:17px;height:17px;accent-color:#0f766e}
+.editar-obligacion-item span{font-size:13px;color:#334155}
+.obligacion-personalizada{margin-top:14px;padding-top:14px;border-top:1px dashed #cbd5e1}
+.obligacion-personalizada label{display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:6px}
+.obligacion-personalizada-row{display:flex;gap:8px}
+.obligacion-personalizada-row input{flex:1;width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px}
+.btn-obligacion-extra{border:none;background:#c59b43;color:#173a5e;padding:10px 14px;border-radius:8px;font-weight:700;cursor:pointer}
+.btn-obligacion-extra:hover{background:#b58c38}
+
+@media (max-width:700px){.header{padding:22px 18px}.header h1{font-size:26px}.container{padding:0 10px}.card-header{padding:16px}.menu-header{align-items:flex-start;flex-direction:column}.btn-nuevo{width:100%}.actions{width:100%}.table-wrapper{overflow-x:auto}}
+
+.header-tools{position:absolute;right:24px;top:20px;display:flex;align-items:center;gap:10px;z-index:5}.btn-campana{position:relative;width:46px;height:46px;border:1px solid rgba(255,255,255,.22);border-radius:50%;background:rgba(255,255,255,.12);color:#fff;font-size:21px;cursor:pointer;display:grid;place-items:center;box-shadow:0 6px 16px rgba(0,0,0,.14);transition:.2s}.btn-campana:hover{background:rgba(255,255,255,.2);transform:translateY(-1px)}.badge-notif{position:absolute;right:-3px;top:-3px;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:#c59b43;color:#173a5e;font:800 11px/20px Arial,sans-serif;text-align:center;border:2px solid #173a5e;display:none}.btn-campana.has-alert{animation:campanaPulse 1.8s infinite}.btn-campana.has-alert .badge-notif{display:grid;place-items:center;background:#c93b2f;color:#fff}.panel-notificaciones{position:fixed;right:24px;top:84px;width:min(420px,calc(100vw - 24px));max-height:70vh;overflow:auto;background:#fff;border:1px solid #dbe3e8;border-radius:16px;box-shadow:0 22px 60px rgba(10,30,48,.24);z-index:2500;display:none}.panel-notificaciones.visible{display:block}.notif-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid #e5ebef;background:#f7fafb}.notif-head h3{font-family:Georgia,serif;color:#173a5e}.notif-item{display:flex;gap:12px;padding:15px 16px;border-bottom:1px solid #edf1f4}.notif-item:last-child{border-bottom:0}.notif-icon{width:34px;height:34px;border-radius:10px;background:#fff3e8;display:grid;place-items:center}.notif-body{min-width:0;display:flex;flex-direction:column;gap:4px}.notif-body strong{color:#173a5e}.notif-body span{font-size:12px;color:#64748b}.notif-actions{display:flex;gap:7px;margin-top:7px}.btn-solicitado{border:0;border-radius:7px;padding:7px 10px;background:#0f766e;color:#fff;font-size:11px;font-weight:700;cursor:pointer}.btn-solicitado.solicitado{background:#64748b}.notif-vacia{padding:24px;text-align:center;color:#64748b;font-size:13px}.alerta-efirma.visible{display:block}
+@keyframes campanaPulse{0%,100%{box-shadow:0 6px 16px rgba(0,0,0,.14),0 0 0 0 rgba(201,59,47,.25)}50%{box-shadow:0 6px 16px rgba(0,0,0,.14),0 0 0 9px rgba(201,59,47,0)}}
+@media(max-width:700px){.header-tools{right:14px;top:14px}.panel-notificaciones{right:12px;top:74px;width:calc(100vw - 24px);max-height:72vh}}
+</style>
+</head>
+
+<body>
+
+    <section id="loginScreen" class="login-screen">
+        <div class="login-card">
+            <h2>Acceso al sistema</h2>
+            <p>Ingresa con tu cuenta de Firebase Authentication.</p>
+            <form id="loginForm">
+                <input id="loginEmail" type="email" placeholder="Correo electrónico" required autocomplete="username">
+                <input id="loginPassword" type="password" placeholder="Contraseña" required autocomplete="current-password">
+                <button type="submit">Iniciar sesión</button>
+            </form>
+            <div id="loginError" class="login-error"></div>
+        </div>
+    </section>
+
+    <div id="appScreen" style="display:none;">
+    <header class="header">
+        <div class="header-tools"><button id="btnCampana" class="btn-campana" type="button" aria-label="Notificaciones">🔔<span id="badgeNotificaciones" class="badge-notif">0</span></button><button id="btnSalir" class="btn-salir">Cerrar sesión</button></div>
+        <h1>Control de Clientes</h1>
+        <p>Sistema de administración de datos de clientes</p>
+    </header>
+
+    <main class="container">
+<div class="dashboard-visual">
+  <div class="brand-panel">
+    <h3>Gestión contable con orden y precisión</h3>
+    <p>Controla expedientes, obligaciones fiscales y datos de tus clientes desde un solo lugar.</p>
+    <svg class="accounting-art" viewBox="0 0 220 145" role="img" aria-label="Ilustración contable">
+      <rect x="18" y="16" width="104" height="116" rx="10" fill="#f8fbfc" stroke="#cfdbe3" stroke-width="2"/>
+      <rect x="34" y="34" width="71" height="10" rx="5" fill="#173a5e" opacity=".18"/>
+      <rect x="34" y="55" width="53" height="8" rx="4" fill="#0f766e" opacity=".28"/>
+      <rect x="34" y="73" width="67" height="8" rx="4" fill="#173a5e" opacity=".14"/>
+      <rect x="34" y="91" width="40" height="8" rx="4" fill="#c59b43" opacity=".35"/>
+      <rect x="144" y="32" width="57" height="86" rx="12" fill="#173a5e"/>
+      <circle cx="172" cy="52" r="10" fill="#f7f4ec"/>
+      <rect x="158" y="70" width="28" height="6" rx="3" fill="#74d5ca"/>
+      <rect x="158" y="84" width="28" height="6" rx="3" fill="#74d5ca" opacity=".7"/>
+      <rect x="158" y="98" width="18" height="6" rx="3" fill="#c59b43"/>
+    </svg>
+  </div>
+  <div class="metric-panel">
+    <div class="metric"><b>Clientes</b><strong id="metricClientes">0</strong></div>
+    <div class="metric accent"><b>Obligaciones</b><strong id="metricObligaciones">0</strong></div>
+    <div class="metric"><b>Completadas</b><strong id="metricHechas">0</strong></div>
+    <div class="metric accent"><b>Control</b><strong>100%</strong></div>
+  </div>
+</div>
+
+        <div id="panelNotificaciones" class="panel-notificaciones" role="dialog" aria-label="Notificaciones de e.firma"><div class="notif-head"><h3>Notificaciones</h3><button id="btnCerrarNotificaciones" class="btn-limpiar" type="button">Cerrar</button></div><div id="listaNotificaciones"></div></div>
+        <div id="alertaEfirma" class="alerta-efirma"></div>
+        <div class="filtros-card">
+            <div class="filtros-grid">
+                <div class="filtro-campo"><label for="busquedaCliente">Búsqueda inteligente</label><input id="busquedaCliente" type="search" placeholder="RFC, razón social, domicilio, CP u obligación..."></div>
+                <div class="filtro-campo"><label for="filtroRegimen">Régimen</label><select id="filtroRegimen"><option value="">Todos</option></select></div>
+                <div class="filtro-campo"><label for="filtroObligacion">Obligación</label><select id="filtroObligacion"><option value="">Todas</option></select></div>
+                <div class="filtro-campo"><label for="filtroEfirma">e.firma</label><select id="filtroEfirma"><option value="">Todos</option><option value="vigente">Vigente</option><option value="proxima">Próxima a vencer</option><option value="vencida">Vencida</option><option value="sin">Sin certificado</option></select></div>
+                <button id="btnLimpiarFiltros" class="btn-limpiar" type="button">Limpiar filtros</button>
+            </div>
+            <div class="busqueda-inteligente"><strong>Encuentra rápido:</strong> el buscador revisa RFC, razón social, domicilio, código postal y obligaciones. <span id="filtroResultados" class="filtro-resultados">0 resultados</span></div>
+        </div>
+        <section class="card">
+            <div class="card-header menu-header">
+                <div>
+                    <h2>Listado de Clientes</h2>
+                    <p class="menu-subtitle">Administración y seguimiento de clientes</p>
+                </div>
+                <button id="btnNuevoCliente" class="btn-nuevo">+ Nuevo cliente</button>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>RFC</th>
+                            <th>Razón Social</th>
+                            <th>Régimen Fiscal</th>
+                            <th>Domicilio</th>
+                            <th>Código Postal</th>
+                            <th>Obligaciones Fiscales</th>
+                            <th>e.firma</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="clientesTabla"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        Sistema de Clientes · Versión 26 · Firebase · Alertas FIEL y filtros
+    </footer>
+
+    <!-- Modal para nuevo cliente -->
+    <div class="modal" id="modalNuevoCliente">
+        <div class="modal-contenido">
+            <div class="modal-header">
+                <h3>Nuevo cliente</h3>
+                <button class="cerrar" onclick="cerrarModalNuevoCliente()" aria-label="Cerrar">&times;</button>
+            </div>
+            <form id="formNuevoCliente">
+                <div class="modal-body">
+                    <div class="constancia-box">
+                        <h4>Precargar desde Constancia de Situación Fiscal</h4>
+                        <p>Selecciona la Constancia de Situación Fiscal en PDF. El sistema intentará detectar los datos de identificación, domicilio, actividades económicas, regímenes y obligaciones. Revisa y corrige los datos antes de guardar.</p>
+                        <input id="constanciaFiscal" class="constancia-input" type="file" accept="application/pdf,.pdf">
+                        <div id="constanciaStatus" class="constancia-status">Ningún PDF seleccionado.</div>
+                        <button type="button" id="btnProcesarConstancia" class="btn-constancia" disabled>Leer constancia</button>
+                    </div>
+
+                    <div class="campo">
+                        <label for="nuevoRfc">RFC</label>
+                        <input id="nuevoRfc" maxlength="13" required>
+                    </div>
+                    <div class="campo">
+                        <label for="nuevoRazonSocial">Razón Social</label>
+                        <input id="nuevoRazonSocial" required>
+                    </div>
+                    <div class="campo">
+                        <label for="nuevoRegimenFiscal">Régimen Fiscal</label>
+                        <select id="nuevoRegimenFiscal" required>
+                            <option value="">Seleccione un régimen fiscal</option>
+                            <option value="601 - General de Ley Personas Morales">601 - General de Ley Personas Morales</option>
+                            <option value="603 - Personas Morales con Fines no Lucrativos">603 - Personas Morales con Fines no Lucrativos</option>
+                            <option value="605 - Sueldos y Salarios e Ingresos Asimilados a Salarios">605 - Sueldos y Salarios e Ingresos Asimilados a Salarios</option>
+                            <option value="606 - Arrendamiento">606 - Arrendamiento</option>
+                            <option value="607 - Régimen de Enajenación o Adquisición de Bienes">607 - Régimen de Enajenación o Adquisición de Bienes</option>
+                            <option value="608 - Demás ingresos">608 - Demás ingresos</option>
+                            <option value="610 - Residentes en el Extranjero sin Establecimiento Permanente en México">610 - Residentes en el Extranjero sin Establecimiento Permanente en México</option>
+                            <option value="611 - Ingresos por Dividendos (socios y accionistas)">611 - Ingresos por Dividendos (socios y accionistas)</option>
+                            <option value="612 - Personas Físicas con Actividades Empresariales y Profesionales">612 - Personas Físicas con Actividades Empresariales y Profesionales</option>
+                            <option value="614 - Ingresos por intereses">614 - Ingresos por intereses</option>
+                            <option value="615 - Régimen de los ingresos por obtención de premios">615 - Régimen de los ingresos por obtención de premios</option>
+                            <option value="616 - Sin obligaciones fiscales">616 - Sin obligaciones fiscales</option>
+                            <option value="620 - Sociedades Cooperativas de Producción que optan por diferir sus ingresos">620 - Sociedades Cooperativas de Producción que optan por diferir sus ingresos</option>
+                            <option value="621 - Incorporación Fiscal">621 - Incorporación Fiscal</option>
+                            <option value="622 - Actividades Agrícolas, Ganaderas, Silvícolas y Pesqueras">622 - Actividades Agrícolas, Ganaderas, Silvícolas y Pesqueras</option>
+                            <option value="623 - Opcional para Grupos de Sociedades">623 - Opcional para Grupos de Sociedades</option>
+                            <option value="624 - Coordinados">624 - Coordinados</option>
+                            <option value="625 - Régimen de las Actividades Empresariales con ingresos a través de Plataformas Tecnológicas">625 - Régimen de las Actividades Empresariales con ingresos a través de Plataformas Tecnológicas</option>
+                            <option value="626 - Régimen Simplificado de Confianza">626 - Régimen Simplificado de Confianza</option>
+                        </select>
+                    </div>
+                    <div class="campo">
+                        <label for="nuevoDomicilio">Domicilio</label>
+                        <input id="nuevoDomicilio" required>
+                    </div>
+                    <div class="campo">
+                        <label for="nuevoCodigoPostal">Código Postal</label>
+                        <input id="nuevoCodigoPostal" maxlength="5" required>
+                    </div>
+
+                    <div class="cliente-info" id="constanciaDetectadaBox" style="display:none;">
+                        <strong>Información detectada de la constancia</strong>
+                        <div id="constanciaDetectada" style="margin-top:10px;"></div>
+                    </div>
+
+                    <div class="efirma-editor">
+                        <div class="efirma-head">
+                            <h4>e.firma / FIEL</h4>
+                            <p>Opcional. Puedes registrarla después desde Editar datos.</p>
+                        </div>
+                        <div class="efirma-grid">
+                            <div class="campo"><label for="nuevoEfirmaEmision">Fecha de expedición</label><input id="nuevoEfirmaEmision" type="date"></div>
+                            <div class="campo"><label for="nuevoEfirmaVencimiento">Fecha de vencimiento</label><input id="nuevoEfirmaVencimiento" type="date"></div>
+                        </div>
+                    </div>
+
+                    <div class="cliente-info">
+                        <strong>Obligaciones fiscales</strong><br>
+                        Selecciona las obligaciones que correspondan al cliente. Se podrán marcar como realizadas desde el listado.
+                    </div>
+                    <div id="nuevasObligaciones"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancelar" onclick="cerrarModalNuevoCliente()">Cancelar</button>
+                    <button type="submit" class="btn-guardar">Guardar cliente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para editar datos del cliente -->
+    <div class="modal" id="modalCliente">
+        <div class="modal-contenido">
+            <div class="modal-header">
+                <h3>Editar datos del cliente</h3>
+                <button class="cerrar" onclick="cerrarModalCliente()" aria-label="Cerrar">&times;</button>
+            </div>
+            <form id="formCliente">
+                <div class="modal-body">
+                    <div class="campo">
+                        <label for="editRfc">RFC</label>
+                        <input id="editRfc" maxlength="13" required>
+                    </div>
+                    <div class="campo">
+                        <label for="editRazonSocial">Razón Social</label>
+                        <input id="editRazonSocial" required>
+                    </div>
+                    <div class="campo">
+                        <label for="editRegimenFiscal">Régimen Fiscal</label>
+                        <select id="editRegimenFiscal" required>
+                            <option value="">Seleccione un régimen fiscal</option>
+                            <option value="601 - General de Ley Personas Morales">601 - General de Ley Personas Morales</option>
+                            <option value="603 - Personas Morales con Fines no Lucrativos">603 - Personas Morales con Fines no Lucrativos</option>
+                            <option value="605 - Sueldos y Salarios e Ingresos Asimilados a Salarios">605 - Sueldos y Salarios e Ingresos Asimilados a Salarios</option>
+                            <option value="606 - Arrendamiento">606 - Arrendamiento</option>
+                            <option value="607 - Régimen de Enajenación o Adquisición de Bienes">607 - Régimen de Enajenación o Adquisición de Bienes</option>
+                            <option value="608 - Demás ingresos">608 - Demás ingresos</option>
+                            <option value="610 - Residentes en el Extranjero sin Establecimiento Permanente en México">610 - Residentes en el Extranjero sin Establecimiento Permanente en México</option>
+                            <option value="611 - Ingresos por Dividendos (socios y accionistas)">611 - Ingresos por Dividendos (socios y accionistas)</option>
+                            <option value="612 - Personas Físicas con Actividades Empresariales y Profesionales">612 - Personas Físicas con Actividades Empresariales y Profesionales</option>
+                            <option value="614 - Ingresos por intereses">614 - Ingresos por intereses</option>
+                            <option value="615 - Régimen de los ingresos por obtención de premios">615 - Régimen de los ingresos por obtención de premios</option>
+                            <option value="616 - Sin obligaciones fiscales">616 - Sin obligaciones fiscales</option>
+                            <option value="620 - Sociedades Cooperativas de Producción que optan por diferir sus ingresos">620 - Sociedades Cooperativas de Producción que optan por diferir sus ingresos</option>
+                            <option value="621 - Incorporación Fiscal">621 - Incorporación Fiscal</option>
+                            <option value="622 - Actividades Agrícolas, Ganaderas, Silvícolas y Pesqueras">622 - Actividades Agrícolas, Ganaderas, Silvícolas y Pesqueras</option>
+                            <option value="623 - Opcional para Grupos de Sociedades">623 - Opcional para Grupos de Sociedades</option>
+                            <option value="624 - Coordinados">624 - Coordinados</option>
+                            <option value="625 - Régimen de las Actividades Empresariales con ingresos a través de Plataformas Tecnológicas">625 - Régimen de las Actividades Empresariales con ingresos a través de Plataformas Tecnológicas</option>
+                            <option value="626 - Régimen Simplificado de Confianza">626 - Régimen Simplificado de Confianza</option>
+                        </select>
+                    </div>
+                    <div class="campo">
+                        <label for="editDomicilio">Domicilio</label>
+                        <input id="editDomicilio" required>
+                    </div>
+                    <div class="campo">
+                        <label for="editCodigoPostal">Código Postal</label>
+                        <input id="editCodigoPostal" maxlength="5" required>
+                    </div>
+
+                    <div class="efirma-editor">
+                        <div class="efirma-head">
+                            <div>
+                                <h4>e.firma / FIEL del cliente</h4>
+                                <p>Sube únicamente el certificado público <strong>.cer</strong>. No subas la llave privada .key ni contraseñas.</p>
+                            </div>
+                        </div>
+                        <div class="efirma-grid">
+                            <div class="campo">
+                                <label for="editEfirmaEmision">Fecha de expedición</label>
+                                <input id="editEfirmaEmision" type="date">
+                            </div>
+                            <div class="campo">
+                                <label for="editEfirmaVencimiento">Fecha de vencimiento</label>
+                                <input id="editEfirmaVencimiento" type="date">
+                            </div>
+                        </div>
+                        <div class="efirma-upload-row">
+                            <input id="editEfirmaCert" type="file" accept=".cer,application/pkix-cert,application/x-x509-ca-cert">
+                            <button type="button" id="btnSubirEfirma" class="btn-efirma">Subir certificado</button>
+                        </div>
+                        <div id="efirmaEstado" class="efirma-estado">Sin certificado cargado.</div>
+                    </div>
+
+                    <div class="obligaciones-editor">
+                        <div class="obligaciones-editor-head">
+                            <div>
+                                <h4>Obligaciones fiscales del cliente</h4>
+                                <p>Selecciona también las obligaciones adicionales que correspondan a este cliente.</p>
+                            </div>
+                        </div>
+                        <div class="obligaciones-filtro"><input id="filtroObligacionesEditar" type="search" placeholder="Buscar entre todas las obligaciones..."></div>
+                        <div id="editarObligacionesLista" class="editar-obligaciones-lista"></div>
+                        <div class="obligacion-personalizada">
+                            <label for="nuevaObligacionEditar">Agregar otra obligación</label>
+                            <div class="obligacion-personalizada-row">
+                                <input id="nuevaObligacionEditar" type="text" maxlength="100" placeholder="Ej. Impuesto estatal específico">
+                                <button type="button" id="btnAgregarObligacionEditar" class="btn-obligacion-extra">+ Agregar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancelar" onclick="cerrarModalCliente()">Cancelar</button>
+                    <button type="submit" class="btn-guardar">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para editar obligaciones -->
+    <div class="modal" id="modalEditar">
+        <div class="modal-contenido">
+
+            <div class="modal-header">
+                <h3>Editar obligaciones fiscales</h3>
+                <button class="cerrar" onclick="cerrarModal()" aria-label="Cerrar">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <div class="cliente-info" id="clienteInfo"></div>
+
+                <h4>Seleccione las obligaciones que necesita realizar:</h4>
+
+                <label class="obligacion-opcion">
+                    <input class="obligacion-seleccion" type="checkbox" value="Declaración mensual">
+                    Declaración mensual
+                    <span class="estado-hecha"><input class="obligacion-hecha" type="checkbox" disabled> Hecha</span>
+                </label>
+
+                <label class="obligacion-opcion">
+                    <input class="obligacion-seleccion" type="checkbox" value="Declaración anual">
+                    Declaración anual
+                    <span class="estado-hecha"><input class="obligacion-hecha" type="checkbox" disabled> Hecha</span>
+                </label>
+
+                <label class="obligacion-opcion">
+                    <input class="obligacion-seleccion" type="checkbox" value="IVA">
+                    IVA
+                    <span class="estado-hecha"><input class="obligacion-hecha" type="checkbox" disabled> Hecha</span>
+                </label>
+
+                <label class="obligacion-opcion">
+                    <input class="obligacion-seleccion" type="checkbox" value="ISR">
+                    ISR
+                    <span class="estado-hecha"><input class="obligacion-hecha" type="checkbox" disabled> Hecha</span>
+                </label>
+
+                <label class="obligacion-opcion">
+                    <input class="obligacion-seleccion" type="checkbox" value="Retenciones">
+                    Retenciones
+                    <span class="estado-hecha"><input class="obligacion-hecha" type="checkbox" disabled> Hecha</span>
+                </label>
+
+                <label class="obligacion-opcion">
+                    <input class="obligacion-seleccion" type="checkbox" value="DIOT">
+                    DIOT
+                    <span class="estado-hecha"><input class="obligacion-hecha" type="checkbox" disabled> Hecha</span>
+                </label>
+
+                <label class="obligacion-opcion">
+                    <input class="obligacion-seleccion" type="checkbox" value="CFDI / Facturación">
+                    CFDI / Facturación
+                    <span class="estado-hecha"><input class="obligacion-hecha" type="checkbox" disabled> Hecha</span>
+                </label>
+
+                <label class="obligacion-opcion">
+                    <input class="obligacion-seleccion" type="checkbox" value="Contabilidad electrónica">
+                    Contabilidad electrónica
+                    <span class="estado-hecha"><input class="obligacion-hecha" type="checkbox" disabled> Hecha</span>
+                </label>
+
+                <div class="progreso-obligaciones" id="progresoObligaciones"></div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
+                <button class="btn-guardar" onclick="guardarObligaciones()">Guardar cambios</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+        import * as pdfjsLib from "https://cdn.jsdelivr.net/npm/pdfjs-dist@6.3.289/build/pdf.mjs";
+        import {
+            getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot
+        } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-storage.js";
+
+        let asn1js = null;
+        let pkijs = null;
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDFkxIIkvb_9H2cgOpjhlH1VdBYUDoLDtA",
+            authDomain: "crm-rpm-conta.firebaseapp.com",
+            projectId: "crm-rpm-conta",
+            storageBucket: "crm-rpm-conta.firebasestorage.app",
+            messagingSenderId: "568342649287",
+            appId: "1:568342649287:web:bf62bf07a64b6e443c61e2"
+        };
+
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@6.3.289/build/pdf.worker.mjs";
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        const auth = getAuth(app);
+        const clientesRef = collection(db, "clientes");
+        const UID_ADMIN = "xQeQnwgSnbhsewHIIj3hsI6NOYh2";
+        let clientes = [];
+
+        const catalogoObligaciones = [
+            "Declaración mensual", "Declaración anual", "IVA", "ISR",
+            "Retenciones", "DIOT", "CFDI / Facturación", "Contabilidad electrónica",
+            "RTP - Impuesto estatal", "ISN - Impuesto sobre Nóminas"
+        ];
+
+        let clienteEditandoDatos = null;
+        const modalCliente = document.getElementById("modalCliente");
+        const formCliente = document.getElementById("formCliente");
+        const formNuevoCliente = document.getElementById("formNuevoCliente");
+        const modalNuevoCliente = document.getElementById("modalNuevoCliente");
+        const tabla = document.getElementById("clientesTabla");
+        const nuevasObligaciones = document.getElementById("nuevasObligaciones");
+        const btnNuevoCliente = document.getElementById("btnNuevoCliente");
+        const editarObligacionesLista = document.getElementById("editarObligacionesLista");
+        const nuevaObligacionEditar = document.getElementById("nuevaObligacionEditar");
+        const btnAgregarObligacionEditar = document.getElementById("btnAgregarObligacionEditar");
+        const filtroObligacionesEditar = document.getElementById("filtroObligacionesEditar");
+        const constanciaFiscal = document.getElementById("constanciaFiscal");
+        const btnProcesarConstancia = document.getElementById("btnProcesarConstancia");
+        const constanciaStatus = document.getElementById("constanciaStatus");
+        const editEfirmaEmision = document.getElementById("editEfirmaEmision");
+        const editEfirmaVencimiento = document.getElementById("editEfirmaVencimiento");
+        const editEfirmaCert = document.getElementById("editEfirmaCert");
+        const btnSubirEfirma = document.getElementById("btnSubirEfirma");
+        const efirmaEstado = document.getElementById("efirmaEstado");
+        const alertaEfirma = document.getElementById("alertaEfirma");
+
+        const nuevoEfirmaEmision = document.getElementById("nuevoEfirmaEmision");
+        const nuevoEfirmaVencimiento = document.getElementById("nuevoEfirmaVencimiento");
+        nuevoEfirmaEmision.addEventListener("change",()=>{ if(!nuevoEfirmaEmision.value) return; const d=new Date(nuevoEfirmaEmision.value+"T00:00:00"); d.setFullYear(d.getFullYear()+4); nuevoEfirmaVencimiento.value=d.toISOString().slice(0,10); });
+
+        // Activar el botón de lectura en cuanto se seleccione un PDF válido.
+        constanciaFiscal.addEventListener("change", () => {
+            const file = constanciaFiscal.files?.[0];
+            const valido = Boolean(file) && (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf"));
+            btnProcesarConstancia.disabled = !valido;
+            if (!file) {
+                constanciaStatus.textContent = "Ningún PDF seleccionado.";
+                constanciaStatus.className = "constancia-status";
+                return;
+            }
+            if (!valido) {
+                constanciaStatus.textContent = "El archivo seleccionado no es un PDF válido.";
+                constanciaStatus.className = "constancia-status error";
+                return;
+            }
+            constanciaStatus.textContent = `PDF seleccionado: ${file.name}. Ya puedes presionar “Leer constancia”.`;
+            constanciaStatus.className = "constancia-status ok";
+        });
+
+        const normalizarTexto = value => String(value || "")
+            .replace(/\u00a0/g, " ")
+            .replace(/[ \t]+/g, " ")
+            .replace(/\s+\n/g, "\n")
+            .replace(/\n\s+/g, "\n")
+            .trim();
+
+        let ultimaConstanciaDetectada = null;
+
+        function obtenerLineas(texto) {
+            return texto.split("\n").map(normalizarTexto).filter(Boolean);
+        }
+
+        function escRegExp(value) {
+            return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        }
+
+        function extraerValorEnBloque(texto, etiqueta, siguientes=[]) {
+            const siguientesEscapadas = siguientes.map(escRegExp);
+            const lookahead = siguientesEscapadas.length
+                ? String.raw`(?=\s+(?:${siguientesEscapadas.join("|")})\s*[:\-]|\n(?:${siguientesEscapadas.join("|")})\s*[:\-]|$)`
+                : String.raw`(?=$)`;
+            const re = new RegExp(String.raw`${escRegExp(etiqueta)}\s*[:\-]?\s*(.*?)${lookahead}`, "i");
+            const m = texto.match(re);
+            if (m && normalizarTexto(m[1])) return normalizarTexto(m[1]);
+
+            const lineas = obtenerLineas(texto);
+            const etiquetaNormal = normalizarTexto(etiqueta).toLowerCase();
+            for (let i = 0; i < lineas.length; i++) {
+                const linea = lineas[i];
+                const idx = linea.toLowerCase().indexOf(etiquetaNormal);
+                if (idx < 0) continue;
+                const despues = normalizarTexto(linea.slice(idx + etiqueta.length).replace(/^[:\-]/, ""));
+                if (despues) {
+                    const primerSiguiente = siguientes.find(x => despues.toLowerCase().includes(normalizarTexto(x).toLowerCase()));
+                    return primerSiguiente
+                        ? normalizarTexto(despues.split(new RegExp(normalizarTexto(primerSiguiente),"i"))[0])
+                        : despues;
+                }
+                if (lineas[i + 1]) {
+                    const siguienteLinea = normalizarTexto(lineas[i + 1]);
+                    const esOtraEtiqueta = siguientes.some(x => siguienteLinea.toLowerCase().startsWith(normalizarTexto(x).toLowerCase()));
+                    if (!esOtraEtiqueta) return siguienteLinea;
+                }
+                if (i > 0) {
+                    const anterior = normalizarTexto(lineas[i - 1]);
+                    if (anterior && !anterior.includes(":")) return anterior;
+                }
+                return "";
+            }
+            return "";
+        }
+
+        function seleccionarRegimenDesdeTexto(texto) {
+            const opciones = Array.from(document.getElementById("nuevoRegimenFiscal").options).filter(option => option.value);
+            const normalizado = texto.toLowerCase().replace(/\s+/g, " ");
+            const encontrados = [];
+
+            for (const opcion of opciones) {
+                const codigo = opcion.value.slice(0, 3).toLowerCase();
+                const descripcion = opcion.value.slice(6).toLowerCase().replace(/\s+/g, " ");
+                if (new RegExp(`\\b${codigo}\\b`).test(normalizado) && normalizado.includes(descripcion)) {
+                    encontrados.push(opcion.value);
+                }
+            }
+
+            const matchRegimen = texto.match(/(?:Regímenes|Regimenes)[:\s]+([\s\S]*?)(?=Obligaciones:|Obligaciones\s)/i);
+            if (matchRegimen) {
+                const bloque = matchRegimen[1];
+                const encontradosEnBloque = [];
+                for (const opcion of opciones) {
+                    const desc = opcion.value.slice(6).replace(/\s+/g, " ").trim();
+                    if (bloque.toLowerCase().includes(desc.toLowerCase())) encontradosEnBloque.push(opcion.value);
+                }
+                if (encontradosEnBloque.length) return encontradosEnBloque[encontradosEnBloque.length - 1];
+            }
+
+            return encontrados[encontrados.length - 1] || "";
+        }
+
+        function construirLineasPorPosicion(paginas) {
+            const resultado = [];
+            for (const pageItems of paginas) {
+                const grupos = [];
+                for (const item of pageItems) {
+                    const str = normalizarTexto(item.str);
+                    if (!str) continue;
+                    const x = Number(item.transform?.[4] || 0);
+                    const y = Number(item.transform?.[5] || 0);
+                    let grupo = grupos.find(g => Math.abs(g.y - y) <= 2.5);
+                    if (!grupo) {
+                        grupo = { y, items: [] };
+                        grupos.push(grupo);
+                    }
+                    grupo.items.push({ x, str });
+                }
+                grupos.sort((a,b) => b.y - a.y);
+                for (const grupo of grupos) {
+                    grupo.items.sort((a,b) => a.x - b.x);
+                    resultado.push(grupo.items.map(i => i.str).join(" ").replace(/\s+/g," ").trim());
+                }
+            }
+            return resultado.filter(Boolean);
+        }
+
+        async function extraerContenidoPDF(file) {
+            const buffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+            const paginas = [];
+            for (let pagina = 1; pagina <= pdf.numPages; pagina++) {
+                const page = await pdf.getPage(pagina);
+                const contenido = await page.getTextContent();
+                paginas.push(contenido.items);
+            }
+            const lineas = construirLineasPorPosicion(paginas);
+            return { pdfLineas: lineas, texto: lineas.join("\n") };
+        }
+
+        function extraerActividades(texto) {
+            const bloque = texto.match(/Actividades Económicas:\s*([\s\S]*?)(?=Regímenes:|Regimenes:)/i);
+            if (!bloque) return [];
+            const lineas = obtenerLineas(bloque[1]);
+            const filas = [];
+            for (let i = 0; i < lineas.length; i++) {
+                const m = lineas[i].match(/^(\d+)\s+(.+?)\s+(\d{1,3})\s+(\d{2}\/\d{2}\/\d{4})(?:\s+(\d{2}\/\d{2}\/\d{4}))?$/);
+                if (m) filas.push({ orden:m[1], actividad:m[2], porcentaje:Number(m[3]), fechaInicio:m[4], fechaFin:m[5] || "" });
+            }
+            // Fallback para PDFs donde la actividad se parte en varias líneas.
+            if (!filas.length) {
+                const raw = lineas.join(" ");
+                const re = /(\d+)\s+(.+?)\s+(100|80|20)\s+(\d{2}\/\d{2}\/\d{4})(?:\s+(\d{2}\/\d{2}\/\d{4}))?/g;
+                let m;
+                while ((m = re.exec(raw))) filas.push({ orden:m[1], actividad:m[2].trim(), porcentaje:Number(m[3]), fechaInicio:m[4], fechaFin:m[5] || "" });
+            }
+            return filas;
+        }
+
+        function extraerRegimenes(texto) {
+            const bloque = texto.match(/(?:Regímenes|Regimenes):\s*([\s\S]*?)(?=Obligaciones:|Obligaciones\s)/i);
+            if (!bloque) return [];
+            const opciones = Array.from(document.getElementById("nuevoRegimenFiscal").options).filter(o => o.value);
+            const resultado = [];
+            for (const opcion of opciones) {
+                const desc = opcion.value.slice(6).replace(/\s+/g," ").trim();
+                const re = new RegExp(`${escRegExp(desc)}\\s+(\\d{2}\/\\d{2}\/\\d{4})(?:\\s+(\\d{2}\/\\d{2}\/\\d{4}))?`, "i");
+                const m = bloque[1].match(re);
+                if (m) resultado.push({ regimen:opcion.value, fechaInicio:m[1], fechaFin:m[2] || "" });
+            }
+            return resultado;
+        }
+
+        function extraerObligacionesConstancia(texto) {
+            const bloque = texto.match(/Obligaciones:\s*([\s\S]*?)(?=Sus datos personales|Cadena Original Sello|$)/i);
+            if (!bloque) return [];
+            const b = bloque[1].replace(/\s+/g," ").trim();
+            const nombres = [
+                "Pago provisional mensual de ISR",
+                "Pago definitivo mensual de IVA",
+                "Ajuste anual de ISR correspondiente a la declaración anual"
+            ];
+            const items = [];
+            for (let i = 0; i < nombres.length; i++) {
+                const idx = b.toLowerCase().indexOf(nombres[i].toLowerCase());
+                if (idx < 0) continue;
+                const siguientes = nombres.slice(i + 1).map(n => b.toLowerCase().indexOf(n.toLowerCase(), idx + nombres[i].length)).filter(v => v >= 0);
+                const fin = siguientes.length ? Math.min(...siguientes) : b.length;
+                const segmento = b.slice(idx, fin).trim();
+                const fecha = segmento.match(/(\d{2}\/\d{2}\/\d{4})\s*$/);
+                const fechaInicio = fecha ? fecha[1] : "";
+                const sinFecha = fecha ? segmento.slice(0, -fecha[1].length).trim() : segmento;
+                const mVenc = sinFecha.match(/(A más tardar.*)$/i);
+                const vencimiento = mVenc ? mVenc[1].trim() : "";
+                items.push({
+                    descripcion: nombres[i] + (sinFecha.toLowerCase().includes("régimen simplificado") ? ". Régimen Simplificado de Confianza." : "."),
+                    vencimiento,
+                    fechaInicio,
+                    fechaFin: ""
+                });
+            }
+            return items;
+        }
+
+        function extraerDatosConstancia(texto) {
+            const rfc = (texto.match(/\b([A-ZÑ&]{3,4}\d{6}[A-Z0-9]{2,3})\b/i) || ["",""])[1].toUpperCase();
+            const curp = (texto.match(/\b[A-Z][AEIOU][A-Z]{2}\d{6}[HM][A-Z]{5}[A-Z0-9]\d\b/i) || [""])[0].toUpperCase();
+            const razonSocialDocumento = extraerValorEnBloque(texto, "Nombre, denominación o razón social", ["idCIF", "Datos de Identificación"])
+                || extraerValorEnBloque(texto, "Nombre, denominacion o razon social", ["idCIF", "Datos de Identificación"]);
+            const nombre = extraerValorEnBloque(texto,"Nombre (s)",["Primer Apellido"]);
+            const primerApellido = extraerValorEnBloque(texto,"Primer Apellido",["Segundo Apellido"]);
+            const segundoApellido = extraerValorEnBloque(texto,"Segundo Apellido",["Fecha inicio de operaciones"]);
+            // Para persona física, Razón Social muestra el nombre completo del cliente.
+            // Un RFC de persona física tiene 13 caracteres; uno de persona moral, 12.
+            const nombreCompletoPersonaFisica = [nombre, primerApellido, segundoApellido].filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
+            const razonSocial = (rfc.length === 13 && nombreCompletoPersonaFisica)
+                ? nombreCompletoPersonaFisica
+                : razonSocialDocumento;
+            const fechaInicioOperaciones = extraerValorEnBloque(texto,"Fecha inicio de operaciones",["Estatus en el padrón","Estatus en el padron"]);
+            const estatusPadron = extraerValorEnBloque(texto,"Estatus en el padrón",["Fecha de último cambio de estado","Fecha de ultimo cambio de estado"]) || extraerValorEnBloque(texto,"Estatus en el padron",["Fecha de ultimo cambio de estado"]);
+            const fechaUltimoCambio = extraerValorEnBloque(texto,"Fecha de último cambio de estado",["Nombre Comercial"]) || extraerValorEnBloque(texto,"Fecha de ultimo cambio de estado",["Nombre Comercial"]);
+            const nombreComercial = extraerValorEnBloque(texto,"Nombre Comercial",["Datos del domicilio registrado"]);
+            const codigoPostal = (texto.match(/Código Postal\s*:?\s*(\d{5})/i) || ["",""])[1];
+            const tipoVialidad = extraerValorEnBloque(texto,"Tipo de Vialidad",["Nombre de Vialidad","Número Exterior"]);
+            const nombreVialidad = extraerValorEnBloque(texto,"Nombre de Vialidad",["Número Exterior"]);
+            const numeroExterior = extraerValorEnBloque(texto,"Número Exterior",["Número Interior","Nombre de la Colonia"]);
+            const numeroInterior = extraerValorEnBloque(texto,"Número Interior",["Nombre de la Colonia"]);
+            const colonia = extraerValorEnBloque(texto,"Nombre de la Colonia",["Nombre de la Localidad"]);
+            const localidad = extraerValorEnBloque(texto,"Nombre de la Localidad",["Nombre del Municipio o Demarcación Territorial"]);
+            const municipio = extraerValorEnBloque(texto,"Nombre del Municipio o Demarcación Territorial",["Nombre de la Entidad Federativa","Entre Calle"]);
+            const entidad = extraerValorEnBloque(texto,"Nombre de la Entidad Federativa",["Entre Calle"]);
+            const entreCalle = extraerValorEnBloque(texto,"Entre Calle",["Y Calle"]);
+            const yCalle = extraerValorEnBloque(texto,"Y Calle",["Actividades Económicas","Actividades Economicas"]);
+            const emision = texto.match(/Lugar y Fecha de Emisión\s+([A-ZÁÉÍÓÚÑ ,]+?)\s+A\s+(\d{1,2}\s+DE\s+[A-ZÁÉÍÓÚÑ]+\s+DE\s+\d{4})/i);
+            const lugarEmision = emision ? normalizarTexto(emision[1]) : "";
+            const fechaEmision = emision ? normalizarTexto(emision[2]) : "";
+            const idCIF = (texto.match(/idCIF\s*:?\s*(\d+)/i) || ["",""])[1];
+            const cadenaOriginal = (texto.match(/Cadena Original Sello:\s*(.*?)\s*Sello Digital:/i) || ["", ""])[1].trim();
+            const selloDigital = (texto.match(/Sello Digital:\s*([A-Za-z0-9+\/\=]+(?:\s+[A-Za-z0-9+\/\=]+)*)/i) || ["", ""])[1].trim();
+            const regimenFiscal = seleccionarRegimenDesdeTexto(texto);
+            const domicilio = [tipoVialidad, nombreVialidad, numeroExterior, numeroInterior, colonia, localidad, municipio, entidad, entreCalle, yCalle].filter(Boolean).join(", ");
+            const actividades = extraerActividades(texto);
+            const regimenes = extraerRegimenes(texto);
+            const obligacionesConstancia = extraerObligacionesConstancia(texto);
+            return { rfc, curp, razonSocial, nombre, primerApellido, segundoApellido, fechaInicioOperaciones, estatusPadron, fechaUltimoCambio, nombreComercial, codigoPostal, tipoVialidad, nombreVialidad, numeroExterior, numeroInterior, colonia, localidad, municipio, entidad, entreCalle, yCalle, lugarEmision, fechaEmision, idCIF, cadenaOriginal, selloDigital, regimenFiscal, domicilio, actividades, regimenes, obligacionesConstancia };
+        }
+
+        function precargarObligacionesDesdeConstancia(datos) {
+            const nombres = [];
+            const texto = JSON.stringify(datos.obligacionesConstancia || []).toLowerCase();
+            if (texto.includes("pago provisional mensual de isr")) nombres.push("Declaración mensual","ISR");
+            if (texto.includes("pago definitivo mensual de iva")) nombres.push("Declaración mensual","IVA");
+            if (texto.includes("ajuste anual de isr")) nombres.push("Declaración anual","ISR");
+            document.querySelectorAll(".nueva-obligacion").forEach(input => input.checked = nombres.includes(input.value));
+        }
+
+        function mostrarDatosConstancia(datos) {
+            const box = document.getElementById("constanciaDetectadaBox");
+            const target = document.getElementById("constanciaDetectada");
+            const extra = [
+                ["CURP", datos.curp], ["Nombre(s)", datos.nombre], ["Primer apellido", datos.primerApellido], ["Segundo apellido", datos.segundoApellido],
+                ["Fecha inicio de operaciones", datos.fechaInicioOperaciones], ["Estatus en padrón", datos.estatusPadron], ["Último cambio de estado", datos.fechaUltimoCambio],
+                ["Nombre comercial", datos.nombreComercial], ["ID CIF", datos.idCIF], ["Lugar de emisión", datos.lugarEmision], ["Fecha de emisión", datos.fechaEmision],
+                ["Domicilio desglosado", datos.domicilio], ["Actividades económicas", (datos.actividades||[]).map(a=>`${a.orden}. ${a.actividad} (${a.porcentaje}%)`).join(" | ")],
+                ["Regímenes detectados", (datos.regimenes||[]).map(r=>`${r.regimen} | Inicio: ${r.fechaInicio}${r.fechaFin ? " | Fin: "+r.fechaFin : ""}`).join(" | ")],
+                ["Obligaciones de la constancia", (datos.obligacionesConstancia||[]).map(o=>`${o.descripcion} | Vencimiento: ${o.vencimiento} | Inicio: ${o.fechaInicio}`).join(" | ")],
+                ["Cadena Original Sello", datos.cadenaOriginal], ["Sello Digital", datos.selloDigital]
+            ];
+            target.innerHTML = extra.filter(([k,v])=>v).map(([k,v])=>`<div style="margin-bottom:6px;"><strong>${k}:</strong> ${escapar(v)}</div>`).join("");
+            box.style.display = target.innerHTML ? "block" : "none";
+        }
+
+        async function extraerTextoPDF(file) {
+            return (await extraerContenidoPDF(file)).texto;
+        }
+
+        async function procesarConstanciaFiscal() {
+            const file = constanciaFiscal.files[0];
+            if (!file) return;
+            if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+                constanciaStatus.textContent = "Selecciona un archivo PDF.";
+                constanciaStatus.className = "constancia-status error";
+                return;
+            }
+            btnProcesarConstancia.disabled = true;
+            constanciaStatus.className = "constancia-status";
+            constanciaStatus.textContent = "Leyendo la constancia completa...";
+            try {
+                const contenido = await extraerContenidoPDF(file);
+                const datos = extraerDatosConstancia(contenido.texto);
+                ultimaConstanciaDetectada = datos;
+                if (datos.rfc) document.getElementById("nuevoRfc").value = datos.rfc;
+                if (datos.razonSocial) document.getElementById("nuevoRazonSocial").value = datos.razonSocial;
+                if (datos.regimenFiscal) document.getElementById("nuevoRegimenFiscal").value = datos.regimenFiscal;
+                if (datos.domicilio) document.getElementById("nuevoDomicilio").value = datos.domicilio;
+                if (datos.codigoPostal) document.getElementById("nuevoCodigoPostal").value = datos.codigoPostal;
+                mostrarDatosConstancia(datos);
+                precargarObligacionesDesdeConstancia(datos);
+                const encontrados = [datos.rfc,datos.razonSocial,datos.regimenFiscal,datos.domicilio,datos.codigoPostal,datos.curp,datos.nombreComercial,datos.actividades.length,datos.regimenes.length,datos.obligacionesConstancia.length].filter(v=>v && v.length !== 0).length;
+                const partes = [`${encontrados} grupos de datos detectados`];
+                partes.push(datos.actividades.length ? `${datos.actividades.length} actividades` : "sin actividades detectadas");
+                partes.push(datos.regimenes.length ? `${datos.regimenes.length} regímenes` : "sin regímenes detectados");
+                partes.push(datos.obligacionesConstancia.length ? `${datos.obligacionesConstancia.length} obligaciones` : "sin obligaciones detalladas detectadas");
+                constanciaStatus.textContent = `Constancia procesada: ${partes.join(", ")}. Revisa y finaliza el registro.`;
+                constanciaStatus.className = "constancia-status ok";
+            } catch (error) {
+                console.error(error);
+                constanciaStatus.textContent = `No se pudo leer la constancia: ${error.message}`;
+                constanciaStatus.className = "constancia-status error";
+            } finally {
+                btnProcesarConstancia.disabled = false;
+            }
+        }
+
+        btnProcesarConstancia.addEventListener("click", procesarConstanciaFiscal);
+
+        function prepararFormularioNuevoCliente() {
+            nuevasObligaciones.innerHTML = catalogoObligaciones.map(nombre => `
+                <label class="obligacion-opcion">
+                    <input class="nueva-obligacion" type="checkbox" value="${nombre}">
+                    ${nombre}
+                </label>`).join("");
+            formNuevoCliente.reset();
+            nuevoEfirmaEmision.value=""; nuevoEfirmaVencimiento.value="";
+            constanciaFiscal.value = "";
+            btnProcesarConstancia.disabled = true;
+            ultimaConstanciaDetectada = null;
+            const box = document.getElementById("constanciaDetectadaBox");
+            if (box) box.style.display = "none";
+            constanciaStatus.textContent = "Ningún PDF seleccionado.";
+            constanciaStatus.className = "constancia-status";
+        }
+
+        function abrirModalNuevoCliente() {
+            prepararFormularioNuevoCliente();
+            modalNuevoCliente.classList.add("activo");
+            document.getElementById("nuevoRfc").focus();
+        }
+
+        function cerrarModalNuevoCliente() {
+            modalNuevoCliente.classList.remove("activo");
+            formNuevoCliente.reset();
+            ultimaConstanciaDetectada = null;
+            const box = document.getElementById("constanciaDetectadaBox");
+            if (box) {
+                box.style.display = "none";
+                document.getElementById("constanciaDetectada").innerHTML = "";
+            }
+            constanciaStatus.textContent = "Ningún PDF seleccionado.";
+            constanciaStatus.className = "constancia-status";
+            btnProcesarConstancia.disabled = true;
+        }
+
+        formNuevoCliente.addEventListener("submit", async event => {
+            event.preventDefault();
+
+            const obligaciones = Array.from(document.querySelectorAll(".nueva-obligacion:checked"))
+                .map(input => ({ nombre: input.value, hecha: false }));
+
+            const nuevoCliente = {
+                rfc: document.getElementById("nuevoRfc").value.trim().toUpperCase(),
+                razonSocial: document.getElementById("nuevoRazonSocial").value.trim(),
+                regimenFiscal: document.getElementById("nuevoRegimenFiscal").value,
+                domicilio: document.getElementById("nuevoDomicilio").value.trim(),
+                codigoPostal: document.getElementById("nuevoCodigoPostal").value.trim(),
+                obligaciones,
+                efirma: { fechaEmision: nuevoEfirmaEmision.value || null, fechaVencimiento: nuevoEfirmaVencimiento.value || null },
+                datosConstancia: ultimaConstanciaDetectada || null,
+                archivoConstancia: constanciaFiscal.files[0]?.name || "",
+                creadoEn: new Date().toISOString()
+            };
+
+            try {
+                await addDoc(clientesRef, nuevoCliente);
+                cerrarModalNuevoCliente();
+            } catch (error) {
+                alert("No se pudo guardar el nuevo cliente en Firebase: " + error.message);
+            }
+        });
+
+        modalNuevoCliente.addEventListener("click", event => {
+            if (event.target === modalNuevoCliente) cerrarModalNuevoCliente();
+        });
+
+        function normalizarObligaciones(cliente) {
+            return (cliente.obligaciones || []).map(obligacion =>
+                typeof obligacion === "string"
+                    ? { nombre: obligacion, hecha: false }
+                    : { nombre: obligacion.nombre, hecha: Boolean(obligacion.hecha) }
+            );
+        }
+
+        function escapar(valor = "") {
+            return String(valor).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+        }
+
+        function estadoEfirma(cliente){
+            const fecha=cliente?.efirma?.fechaVencimiento;
+            if(!fecha) return {tipo:'sin',texto:'Sin certificado'};
+            const hoy=new Date(); hoy.setHours(0,0,0,0);
+            const venc=new Date(fecha+'T00:00:00');
+            const ms=24*60*60*1000;
+            const dias=Math.ceil((venc-hoy)/ms);
+            if(dias<0) return {tipo:'vencida',texto:'Vencida',dias};
+            if(dias<=60) return {tipo:'proxima',texto:`Vence en ${dias} días`,dias};
+            return {tipo:'vigente',texto:`Vence ${fecha}`,dias};
+        }
+
+        function actualizarAlertasEfirma(){
+            const proximas=clientes.filter(c=>{const e=estadoEfirma(c); return e.tipo==='proxima'||e.tipo==='vencida';});
+            if(!proximas.length){ alertaEfirma.classList.remove('visible'); alertaEfirma.textContent=''; return; }
+            const vencidas=proximas.filter(c=>estadoEfirma(c).tipo==='vencida');
+            const porVencer=proximas.filter(c=>estadoEfirma(c).tipo==='proxima');
+            const partes=[];
+            if(vencidas.length) partes.push(`${vencidas.length} certificado(s) vencido(s)`);
+            if(porVencer.length) partes.push(`${porVencer.length} certificado(s) vencen dentro de 60 días`);
+            alertaEfirma.textContent='⚠️ Atención: '+partes.join(' y ')+'. Revisa los clientes marcados en la columna e.firma.';
+            alertaEfirma.classList.add('visible');
+        }
+
+        const btnCampana = document.getElementById('btnCampana');
+        const badgeNotificaciones = document.getElementById('badgeNotificaciones');
+        const panelNotificaciones = document.getElementById('panelNotificaciones');
+        const listaNotificaciones = document.getElementById('listaNotificaciones');
+        const btnCerrarNotificaciones = document.getElementById('btnCerrarNotificaciones');
+        const busquedaCliente = document.getElementById('busquedaCliente');
+        const filtroRegimen = document.getElementById('filtroRegimen');
+        const filtroObligacion = document.getElementById('filtroObligacion');
+        const filtroEfirma = document.getElementById('filtroEfirma');
+        const btnLimpiarFiltros = document.getElementById('btnLimpiarFiltros');
+        const filtroResultados = document.getElementById('filtroResultados');
+
+        function esAlertaEfirma(cliente){
+            const e=estadoEfirma(cliente);
+            return e.tipo==='proxima' && e.dias>0 && e.dias<=15;
+        }
+        function clientesConAlertaEfirma(){ return clientes.filter(esAlertaEfirma); }
+        function actualizarNotificaciones(){
+            const lista=clientesConAlertaEfirma();
+            const pendientes=lista.filter(c=>!c?.efirma?.solicitado);
+            badgeNotificaciones.textContent=String(pendientes.length);
+            badgeNotificaciones.style.display=pendientes.length?'grid':'none'; btnCampana.classList.toggle('has-alert', pendientes.length>0);
+            if(!lista.length){ listaNotificaciones.innerHTML='<div class="notif-vacia">No hay certificados que venzan en los próximos 15 días.</div>'; return; }
+            listaNotificaciones.innerHTML=lista.map(c=>{
+                const e=estadoEfirma(c); const fecha=c.efirma?.fechaVencimiento||''; const solicitado=Boolean(c.efirma?.solicitado);
+                const mensaje=`El certificado vence en ${e.dias} días (${fecha}).`;
+                return `<div class="notif-item"><div class="notif-icon">🔔</div><div class="notif-body"><strong>${escapar(c.razonSocial||c.rfc||'Cliente')}</strong><span>${escapar(mensaje)}</span><div class="notif-actions"><button type="button" class="btn-solicitado ${solicitado?'solicitado':''}" data-solicitado="${escapar(c.id)}">${solicitado?'SOLICITADO ✓':'SOLICITADO'}</button><button type="button" class="btn-limpiar" data-ir-editar="${escapar(c.id)}">Ver cliente</button></div></div></div>`;
+            }).join('');
+            listaNotificaciones.querySelectorAll('[data-solicitado]').forEach(b=>b.addEventListener('click',async()=>{ const c=clientes.find(x=>x.id===b.dataset.solicitado); if(!c)return; try{ await updateDoc(doc(db,'clientes',c.id),{efirma:{...(c.efirma||{}),solicitado:!Boolean(c.efirma?.solicitado),solicitadoEn:new Date().toISOString()}});}catch(e){alert('No se pudo actualizar la notificación: '+e.message);} }));
+            listaNotificaciones.querySelectorAll('[data-ir-editar]').forEach(b=>b.addEventListener('click',()=>{ const idx=clientes.findIndex(x=>x.id===b.dataset.irEditar); if(idx>=0){ cerrarNotificaciones(); abrirEdicionDatos(idx); } }));
+        }
+        function cerrarNotificaciones(){panelNotificaciones.classList.remove('visible');}
+        btnCampana.addEventListener('click',()=>{ panelNotificaciones.classList.toggle('visible'); actualizarNotificaciones(); });
+        btnCerrarNotificaciones.addEventListener('click',cerrarNotificaciones);
+        document.addEventListener('click',e=>{ if(!panelNotificaciones.contains(e.target) && !btnCampana.contains(e.target)) cerrarNotificaciones(); });
+
+        function prepararFiltros(){
+            const regimes=[...new Set(clientes.map(c=>c.regimenFiscal).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
+            const obligaciones=[...new Set(clientes.flatMap(c=>normalizarObligaciones(c).map(o=>o.nombre)).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
+            const currentR=filtroRegimen.value, currentO=filtroObligacion.value;
+            filtroRegimen.innerHTML='<option value="">Todos</option>'+regimes.map(v=>`<option value="${escapar(v)}">${escapar(v)}</option>`).join('');
+            filtroObligacion.innerHTML='<option value="">Todas</option>'+obligaciones.map(v=>`<option value="${escapar(v)}">${escapar(v)}</option>`).join('');
+            if(regimes.includes(currentR)) filtroRegimen.value=currentR; if(obligaciones.includes(currentO)) filtroObligacion.value=currentO;
+        }
+        function clienteCoincideFiltro(cliente){
+            const q=(busquedaCliente.value||'').trim().toLowerCase();
+            const obligaciones=normalizarObligaciones(cliente);
+            const texto=[cliente.rfc,cliente.razonSocial,cliente.domicilio,cliente.codigoPostal,cliente.regimenFiscal,...obligaciones.map(o=>o.nombre)].filter(Boolean).join(' ').toLowerCase();
+            if(q && !texto.includes(q)) return false;
+            if(filtroRegimen.value && cliente.regimenFiscal!==filtroRegimen.value) return false;
+            if(filtroObligacion.value && !obligaciones.some(o=>o.nombre===filtroObligacion.value)) return false;
+            if(filtroEfirma.value && estadoEfirma(cliente).tipo!==filtroEfirma.value) return false;
+            return true;
+        }
+        [busquedaCliente,filtroRegimen,filtroObligacion,filtroEfirma].forEach(el=>el.addEventListener(el.tagName==='INPUT'?'input':'change',mostrarClientes));
+        btnLimpiarFiltros.addEventListener('click',()=>{busquedaCliente.value='';filtroRegimen.value='';filtroObligacion.value='';filtroEfirma.value='';mostrarClientes();});
+
+        function mostrarClientes() {
+            const metricClientes = document.getElementById("metricClientes");
+            const metricObligaciones = document.getElementById("metricObligaciones");
+            const metricHechas = document.getElementById("metricHechas");
+            if (metricClientes) metricClientes.textContent = clientes.length;
+            const obligacionesTotales = clientes.reduce((t, c) => t + normalizarObligaciones(c).length, 0);
+            const obligacionesHechas = clientes.reduce((t, c) => t + normalizarObligaciones(c).filter(o => o.hecha).length, 0);
+            if (metricObligaciones) metricObligaciones.textContent = obligacionesTotales;
+            if (metricHechas) metricHechas.textContent = obligacionesHechas;
+
+            actualizarAlertasEfirma();
+            prepararFiltros();
+            const clientesFiltrados=clientes.filter(clienteCoincideFiltro);
+            filtroResultados.textContent=`${clientesFiltrados.length} resultado${clientesFiltrados.length===1?'':'s'}`;
+            actualizarNotificaciones();
+
+            if (clientesFiltrados.length === 0) {
+                tabla.innerHTML = `<tr><td colspan="8" class="empty">No hay clientes que coincidan con los filtros seleccionados.</td></tr>`;
+                return;
+            }
+
+            tabla.innerHTML = clientesFiltrados.map((cliente) => {
+                const index=clientes.findIndex(x=>x.id===cliente.id);
+                const obligaciones = normalizarObligaciones(cliente);
+                const hechas = obligaciones.filter(item => item.hecha).length;
+                const asignadas = new Set(obligaciones.map(item => item.nombre));
+                const estados = new Map(obligaciones.map(item => [item.nombre, item.hecha]));
+                const lista = obligaciones.map(obligacion => {
+                    const nombre = obligacion.nombre;
+                    const hecha = Boolean(obligacion.hecha);
+                    return `<label class="obligacion-card ${hecha ? 'hecha' : 'pendiente'}">
+                        <input type="checkbox" class="check-hecha" data-cliente="${index}" data-obligacion="${encodeURIComponent(nombre)}" ${hecha ? 'checked' : ''} title="Marcar como realizada">
+                        <span><span class="nombre">${escapar(nombre)}</span><span class="meta">${hecha ? 'Obligación realizada' : 'Obligación pendiente'}</span></span>
+                        <span class="estado">${hecha ? '✓ Hecha' : 'Pendiente'}</span>
+                    </label>`;
+                }).join('');
+
+                return `<tr>
+                    <td class="rfc">${escapar(cliente.rfc)}</td>
+                    <td>${escapar(cliente.razonSocial)}</td>
+                    <td>${escapar(cliente.regimenFiscal)}</td>
+                    <td>
+                        <details class="dato-expandible">
+                            <summary><span class="dato-resumen">${escapar(cliente.domicilio || 'Sin domicilio')}</span></summary>
+                            <div class="dato-detalle">${escapar(cliente.domicilio || 'Sin domicilio registrado')}</div>
+                        </details>
+                    </td>
+                    <td>
+                        <details class="dato-expandible">
+                            <summary><span class="cp-compact">${escapar(cliente.codigoPostal || '—')}</span></summary>
+                            <div class="cp-detalle">Código postal del cliente</div>
+                        </details>
+                    </td>
+                    <td class="obligaciones"><div class="checklist-obligaciones">${lista}</div><div class="progreso-obligaciones">${hechas} de ${obligaciones.length} realizadas</div></td>
+                    <td>${(() => { const e=estadoEfirma(cliente); const fecha=cliente.efirma?.fechaVencimiento||""; const em=cliente.efirma?.fechaEmision||""; const clase=e.tipo; const texto=e.tipo==="sin"?"Sin certificado":e.texto; return `<div class="efirma-card ${clase}"><strong>${texto}</strong><span>${fecha?`Vencimiento: ${fecha}`:"Carga un .cer"}</span>${em?`<span>Emisión: ${em}</span>`:""}${cliente.efirma?.url?`<span style="display:block;margin-top:6px"><a href="${cliente.efirma.url}" target="_blank" rel="noopener">Ver certificado</a></span>`:""}</div>`; })()}</td>
+                    <td><div class="acciones"><button class="btn-editar" data-editar="${index}">Editar datos</button><button class="btn-borrar" data-borrar="${index}">Borrar</button></div></td>
+                </tr>`;
+            }).join("");
+
+            tabla.querySelectorAll('.check-hecha').forEach(c => c.addEventListener('change', manejarChecklist));
+            tabla.querySelectorAll('[data-editar]').forEach(b => b.addEventListener('click', () => abrirEdicionDatos(Number(b.dataset.editar))));
+            tabla.querySelectorAll('[data-borrar]').forEach(b => b.addEventListener('click', () => borrarCliente(Number(b.dataset.borrar))));
+        }
+
+        async function manejarChecklist(event) {
+            const control = event.target;
+            const index = Number(control.dataset.cliente);
+            const nombre = decodeURIComponent(control.dataset.obligacion);
+            const cliente = clientes[index];
+            const obligaciones = normalizarObligaciones(cliente);
+            const posicion = obligaciones.findIndex(o => o.nombre.toLowerCase() === nombre.toLowerCase());
+            if (posicion === -1) return;
+            obligaciones[posicion].hecha = control.checked;
+            try {
+                await updateDoc(doc(db, "clientes", cliente.id), { obligaciones });
+            } catch (error) {
+                control.checked = !control.checked;
+                alert("No se pudo guardar la obligación en Firebase: " + error.message);
+            }
+        }
+
+        function renderizarObligacionesEdicion(cliente) {
+            const obligaciones = normalizarObligaciones(cliente);
+            const disponibles = Array.from(new Set([...catalogoObligaciones, ...obligaciones.map(o => o.nombre)]));
+            editarObligacionesLista.innerHTML = disponibles.map(nombre => {
+                const actual = obligaciones.find(o => o.nombre.toLowerCase() === nombre.toLowerCase());
+                const marcada = Boolean(actual);
+                return `<label class="editar-obligacion-item" data-obligacion-nombre="${escapar(nombre).toLowerCase()}">
+                    <input type="checkbox" class="editar-obligacion-check" value="${escapar(nombre)}" ${marcada ? 'checked' : ''}>
+                    <span>${escapar(nombre)}</span>
+                </label>`;
+            }).join('');
+            filtroObligacionesEditar.value = '';
+            filtrarObligacionesEdicion();
+        }
+
+        function filtrarObligacionesEdicion() {
+            const termino = (filtroObligacionesEditar.value || '').trim().toLowerCase();
+            editarObligacionesLista.querySelectorAll('.editar-obligacion-item').forEach(item => {
+                const nombre = item.dataset.obligacionNombre || '';
+                item.classList.toggle('hidden', termino !== '' && !nombre.includes(termino));
+            });
+        }
+
+        function agregarObligacionPersonalizada() {
+            const nombre = nuevaObligacionEditar.value.trim();
+            if (!nombre) return;
+            const existente = Array.from(document.querySelectorAll('.editar-obligacion-check')).some(i => i.value.toLowerCase() === nombre.toLowerCase());
+            if (!existente) {
+                const item = document.createElement('label');
+                item.className = 'editar-obligacion-item';
+                item.innerHTML = `<input type="checkbox" class="editar-obligacion-check" value="${escapar(nombre)}" checked><span>${escapar(nombre)}</span>`;
+                editarObligacionesLista.appendChild(item);
+            }
+            nuevaObligacionEditar.value = '';
+            nuevaObligacionEditar.focus();
+        }
+
+        btnAgregarObligacionEditar.addEventListener('click', agregarObligacionPersonalizada);
+        nuevaObligacionEditar.addEventListener('keydown', event => {
+            if (event.key === 'Enter') { event.preventDefault(); agregarObligacionPersonalizada(); }
+        });
+        filtroObligacionesEditar.addEventListener('input', filtrarObligacionesEdicion);
+
+        function mostrarEstadoEfirmaEdicion(cliente){
+            const e=estadoEfirma(cliente);
+            const nombre=cliente?.efirma?.nombreArchivo;
+            efirmaEstado.textContent= e.tipo==='sin' ? 'Sin certificado cargado.' : `${nombre||'Certificado cargado'} · ${e.texto}`;
+            efirmaEstado.className='efirma-estado '+(e.tipo==='vigente'?'ok':e.tipo==='proxima'?'warn':e.tipo==='vencida'?'danger':'');
+        }
+
+        function parseDerTlv(bytes, offset=0){
+            if(offset >= bytes.length) throw new Error('ASN.1 fuera de rango');
+            const tag=bytes[offset++];
+            if(offset >= bytes.length) throw new Error('Longitud ASN.1 incompleta');
+            let len=bytes[offset++];
+            if(len & 0x80){
+                const n=len & 0x7f;
+                if(n===0 || n>4 || offset+n>bytes.length) throw new Error('Longitud ASN.1 no soportada');
+                len=0;
+                for(let i=0;i<n;i++) len=(len*256)+bytes[offset++];
+            }
+            const end=offset+len;
+            if(end>bytes.length) throw new Error('Estructura ASN.1 truncada');
+            return {tag,len,start:offset-1,contentStart:offset,end,next: end};
+        }
+
+        function getChildren(bytes, node){
+            const children=[];
+            let p=node.contentStart;
+            const constructed=(node.tag & 0x20)!==0;
+            if(!constructed) return children;
+            while(p<node.end){
+                const child=parseDerTlv(bytes,p);
+                children.push(child);
+                p=child.end;
+            }
+            return children;
+        }
+
+        function asciiFrom(bytes,start,end){
+            let out='';
+            for(let i=start;i<end;i++) out+=String.fromCharCode(bytes[i]);
+            return out;
+        }
+
+        function parseAsn1CertificateDates(bytes){
+            const root=parseDerTlv(bytes,0);
+            if((root.tag & 0x1f)!==0x10 || (root.tag & 0x20)===0) throw new Error('No es una secuencia DER');
+            const rootChildren=getChildren(bytes,root);
+            const tbs=rootChildren[0];
+            if(!tbs || (tbs.tag & 0x1f)!==0x10) throw new Error('No se encontró TBSCertificate');
+            const tbsChildren=getChildren(bytes,tbs);
+            for(const node of tbsChildren){
+                if((node.tag & 0x1f)!==0x10 || (node.tag & 0x20)===0) continue;
+                const sub=getChildren(bytes,node);
+                if(sub.length!==2) continue;
+                const validTimes=sub.filter(n => n.tag===0x17 || n.tag===0x18);
+                if(validTimes.length!==2) continue;
+                const values=validTimes.map(n=>asciiFrom(bytes,n.contentStart,n.end));
+                return {fechaEmision:certDateToInput(values[0]),fechaVencimiento:certDateToInput(values[1])};
+            }
+            throw new Error('No se encontró el periodo de validez X.509');
+        }
+
+        function certDateToInput(value){
+            const clean=String(value).trim();
+            let m;
+            if(/^\d{12}Z$/.test(clean)){
+                const yy=Number(clean.slice(0,2));
+                const year=yy>=50?1900+yy:2000+yy;
+                m={year,month:Number(clean.slice(2,4)),day:Number(clean.slice(4,6)),hour:Number(clean.slice(6,8)),minute:Number(clean.slice(8,10)),second:Number(clean.slice(10,12))};
+            } else if(/^\d{14}Z$/.test(clean)){
+                m={year:Number(clean.slice(0,4)),month:Number(clean.slice(4,6)),day:Number(clean.slice(6,8)),hour:Number(clean.slice(8,10)),minute:Number(clean.slice(10,12)),second:Number(clean.slice(12,14))};
+            } else {
+                throw new Error('Formato de fecha X.509 no reconocido');
+            }
+            const d=new Date(Date.UTC(m.year,m.month-1,m.day,m.hour,m.minute,m.second));
+            if(Number.isNaN(d.getTime())) throw new Error('Fecha X.509 inválida');
+            return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+        }
+
+        function bytesFromPemOrDer(buffer){
+            const bytes=new Uint8Array(buffer);
+            const text=new TextDecoder('latin1').decode(bytes);
+            const pem=text.match(/-----BEGIN CERTIFICATE-----([\s\S]*?)-----END CERTIFICATE-----/i);
+            if(pem){
+                const b64=pem[1].replace(/\s+/g,'');
+                const bin=atob(b64);
+                return Uint8Array.from(bin,c=>c.charCodeAt(0));
+            }
+            return bytes;
+        }
+
+        async function leerFechasCertificado(file){
+            const buffer=await file.arrayBuffer();
+            const bytes=bytesFromPemOrDer(buffer);
+            try{
+                return parseAsn1CertificateDates(bytes);
+            }catch(customError){
+                // Respaldo con PKI.js para certificados que requieran una interpretación ASN.1 más avanzada.
+                try{
+                    const resultado=asn1js.fromBER(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength));
+                    if(resultado.offset===-1) throw customError;
+                    const certificado=new pkijs.Certificate({schema:resultado.result});
+                    const toInput=(fecha)=>{
+                        const d=new Date(fecha);
+                        if(Number.isNaN(d.getTime())) throw customError;
+                        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                    };
+                    return {fechaEmision:toInput(certificado.notBefore.value),fechaVencimiento:toInput(certificado.notAfter.value)};
+                }catch(_fallback){
+                    throw new Error('No se pudo interpretar el periodo de validez del certificado .cer.');
+                }
+            }
+        }
+
+        editEfirmaEmision.addEventListener('change',()=>{
+            if(!editEfirmaEmision.value) return;
+            const d=new Date(editEfirmaEmision.value+'T00:00:00');
+            d.setFullYear(d.getFullYear()+4);
+            editEfirmaVencimiento.value=d.toISOString().slice(0,10);
+        });
+
+        editEfirmaCert.addEventListener('change', async ()=>{
+            const file=editEfirmaCert.files?.[0];
+            if(!file) return;
+            if(!file.name.toLowerCase().endsWith('.cer')){
+                efirmaEstado.textContent='Solo se permite el certificado público .cer.';
+                efirmaEstado.className='efirma-estado danger';
+                return;
+            }
+            efirmaEstado.textContent='Leyendo fechas del certificado...';
+            efirmaEstado.className='efirma-estado';
+            try{
+                const fechas=await leerFechasCertificado(file);
+                editEfirmaEmision.value=fechas.fechaEmision;
+                editEfirmaVencimiento.value=fechas.fechaVencimiento;
+                const e=estadoEfirma({efirma:fechas});
+                efirmaEstado.textContent=`${file.name} · Expedición: ${fechas.fechaEmision} · Vencimiento: ${fechas.fechaVencimiento} · ${e.texto}`;
+                efirmaEstado.className='efirma-estado '+(e.tipo==='vigente'?'ok':e.tipo==='proxima'?'warn':'danger');
+            }catch(error){
+                efirmaEstado.textContent='Certificado seleccionado. No se pudieron leer automáticamente las fechas; captura expedición y vencimiento y presiona Subir certificado.';
+                efirmaEstado.className='efirma-estado warn';
+            }
+        });
+
+        async function cargarLibreriasCertificado(){
+            if (asn1js && pkijs) return;
+            const mod = await import("https://cdn.jsdelivr.net/npm/pkijs@3.2.4/+esm");
+            pkijs = mod.default || mod;
+            const asn = await import("https://cdn.jsdelivr.net/npm/asn1js@3.0.6/+esm");
+            asn1js = asn.default || asn;
+        }
+
+        btnSubirEfirma.addEventListener('click', async ()=>{
+            try { await cargarLibreriasCertificado(); } catch (e) { efirmaEstado.textContent = 'No se pudo cargar el lector del certificado. El login sigue funcionando; revisa la conexión y vuelve a intentar.'; efirmaEstado.className='efirma-estado danger'; return; }
+            if(clienteEditandoDatos===null) return;
+            const cliente=clientes[clienteEditandoDatos];
+            const file=editEfirmaCert.files?.[0];
+            if(!file){ efirmaEstado.textContent='Selecciona un archivo .cer.'; efirmaEstado.className='efirma-estado danger'; return; }
+            if(!file.name.toLowerCase().endsWith('.cer')){ efirmaEstado.textContent='Solo se permite el certificado público .cer.'; efirmaEstado.className='efirma-estado danger'; return; }
+            btnSubirEfirma.disabled=true; efirmaEstado.textContent='Leyendo y guardando certificado...';
+            try{
+                let fechas=null;
+                try{ fechas=await leerFechasCertificado(file); }catch(_parseError){}
+                if(fechas){
+                    editEfirmaEmision.value=fechas.fechaEmision;
+                    editEfirmaVencimiento.value=fechas.fechaVencimiento;
+                }
+                if(!editEfirmaEmision.value || !editEfirmaVencimiento.value){
+                    efirmaEstado.textContent='Certificado leído para carga. Captura fecha de expedición y vencimiento antes de continuar.';
+                    efirmaEstado.className='efirma-estado warn';
+                    btnSubirEfirma.disabled=false;
+                    return;
+                }
+                const ruta=`efirmas/${cliente.id}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
+                const ref=storageRef(storage,ruta);
+                await uploadBytes(ref,file,{contentType:file.type||'application/pkix-cert'});
+                const url=await getDownloadURL(ref);
+                await updateDoc(doc(db,'clientes',cliente.id),{efirma:{...(cliente.efirma||{}),url,nombreArchivo:file.name,fechaEmision:fechas.fechaEmision,fechaVencimiento:fechas.fechaVencimiento,actualizadoEn:new Date().toISOString()}});
+                efirmaEstado.textContent=`Certificado cargado correctamente · Vence: ${editEfirmaVencimiento.value}`;
+                const estado=estadoEfirma({efirma:{fechaVencimiento:editEfirmaVencimiento.value}}); efirmaEstado.className='efirma-estado '+(estado.tipo==='vigente'?'ok':estado.tipo==='proxima'?'warn':'danger');
+            }catch(error){ efirmaEstado.textContent='No se pudo cargar el certificado: '+error.message; efirmaEstado.className='efirma-estado danger'; }
+            finally{ btnSubirEfirma.disabled=false; }
+        });
+
+        function abrirEdicionDatos(index) {
+            clienteEditandoDatos = index;
+            const cliente = clientes[index];
+            document.getElementById("editRfc").value = cliente.rfc || "";
+            document.getElementById("editRazonSocial").value = cliente.razonSocial || "";
+            document.getElementById("editRegimenFiscal").value = cliente.regimenFiscal || "";
+            document.getElementById("editDomicilio").value = cliente.domicilio || "";
+            document.getElementById("editCodigoPostal").value = cliente.codigoPostal || "";
+            editEfirmaEmision.value = cliente.efirma?.fechaEmision || "";
+            editEfirmaVencimiento.value = cliente.efirma?.fechaVencimiento || "";
+            editEfirmaCert.value = "";
+            mostrarEstadoEfirmaEdicion(cliente);
+            renderizarObligacionesEdicion(cliente);
+            nuevaObligacionEditar.value = '';
+            modalCliente.classList.add("activo");
+        }
+
+        function cerrarModalCliente() {
+            modalCliente.classList.remove("activo");
+            clienteEditandoDatos = null;
+        }
+
+        formCliente.addEventListener("submit", async event => {
+            event.preventDefault();
+            if (clienteEditandoDatos === null) return;
+            const cliente = clientes[clienteEditandoDatos];
+            const obligacionesActuales = normalizarObligaciones(cliente);
+            const cambios = {
+                rfc: document.getElementById("editRfc").value.trim().toUpperCase(),
+                razonSocial: document.getElementById("editRazonSocial").value.trim(),
+                regimenFiscal: document.getElementById("editRegimenFiscal").value,
+                domicilio: document.getElementById("editDomicilio").value.trim(),
+                codigoPostal: document.getElementById("editCodigoPostal").value.trim(),
+                efirma: { ...(cliente.efirma || {}), fechaEmision: editEfirmaEmision.value || null, fechaVencimiento: editEfirmaVencimiento.value || null },
+                obligaciones: Array.from(document.querySelectorAll('.editar-obligacion-check:checked')).map(input => {
+                    const previo = obligacionesActuales.find(o => o.nombre.toLowerCase() === input.value.toLowerCase());
+                    return { nombre: input.value, hecha: previo ? Boolean(previo.hecha) : false };
+                })
+            };
+            try {
+                await updateDoc(doc(db, "clientes", cliente.id), cambios);
+                cerrarModalCliente();
+            } catch (error) {
+                alert("No se pudieron guardar los cambios: " + error.message);
+            }
+        });
+
+        async function borrarCliente(index) {
+            const cliente = clientes[index];
+            if (!confirm(`¿Desea borrar al cliente "${cliente.razonSocial}"?\n\nEsta acción también lo eliminará de Firebase.`)) return;
+            try {
+                await deleteDoc(doc(db, "clientes", cliente.id));
+            } catch (error) {
+                alert("No se pudo borrar el cliente: " + error.message);
+            }
+        }
+
+        modalCliente.addEventListener("click", event => {
+            if (event.target === modalCliente) cerrarModalCliente();
+        });
+
+        const loginScreen = document.getElementById("loginScreen");
+        const appScreen = document.getElementById("appScreen");
+        const loginForm = document.getElementById("loginForm");
+        const loginError = document.getElementById("loginError");
+        const btnSalir = document.getElementById("btnSalir");
+
+        let detenerClientes = null;
+
+        loginForm.addEventListener("submit", async event => {
+            event.preventDefault();
+            loginError.textContent = "";
+
+            const email = document.getElementById("loginEmail").value.trim();
+            const password = document.getElementById("loginPassword").value;
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                loginError.textContent = `Firebase: ${error.code || "error"} - ${error.message || "No se pudo iniciar sesión"}`;
+            }
+        });
+
+        btnSalir.addEventListener("click", async () => {
+            await signOut(auth);
+        });
+
+        onAuthStateChanged(auth, user => {
+            if (!user) {
+                loginScreen.style.display = "flex";
+                appScreen.style.display = "none";
+                clientes = [];
+                tabla.innerHTML = "";
+                if (detenerClientes) {
+                    detenerClientes();
+                    detenerClientes = null;
+                }
+                return;
+            }
+
+            if (user.uid !== UID_ADMIN) {
+                loginScreen.style.display = "flex";
+                appScreen.style.display = "none";
+                loginError.textContent = "Esta cuenta no tiene permisos de administrador.";
+                signOut(auth);
+                return;
+            }
+
+            loginScreen.style.display = "none";
+            appScreen.style.display = "block";
+
+            // Sincronización en tiempo real solo para el administrador autenticado.
+            if (detenerClientes) detenerClientes();
+
+            detenerClientes = onSnapshot(clientesRef, snapshot => {
+                clientes = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                clientes.sort((a, b) => String(a.razonSocial || '').localeCompare(String(b.razonSocial || ''), 'es'));
+                mostrarClientes();
+            }, error => {
+                tabla.innerHTML = `<tr><td colspan="8" class="empty">Error al conectar con Firebase: ${escapar(error.message)}</td></tr>`;
+            });
+        });
+
+        window.cerrarModalCliente = cerrarModalCliente;
+        window.cerrarModalNuevoCliente = cerrarModalNuevoCliente;
+
+        btnNuevoCliente.addEventListener("click", abrirModalNuevoCliente);
+    </script>
+
+    </div>
+</body>
+</html>
